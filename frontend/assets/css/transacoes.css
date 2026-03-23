@@ -1,0 +1,95 @@
+.tipo-tabs {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+.tipo-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  transition: all .2s;
+}
+.tipo-tab.active-receita {
+  background: #0d2e1e;
+  color: var(--accent);
+  border: 1px solid #1e4a30;
+}
+.tipo-tab.active-despesa {
+  background: #2e1010;
+  color: var(--accent2);
+  border: 1px solid #4a1e1e;
+}
+
+.historico-wrap { margin-top: 20px; }
+.historico-list { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; padding-right: 4px; }
+.historico-list::-webkit-scrollbar { width: 4px; }
+.historico-list::-webkit-scrollbar-track { background: transparent; }
+.historico-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 16px;
+  transition: border-color .2s;
+  animation: slideIn .3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tx-item:hover { border-color: #3a3d4a; }
+
+.tx-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tx-dot.receita { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.tx-dot.despesa { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+
+.tx-info { flex: 1; }
+.tx-desc { font-size: 0.85rem; color: var(--text); }
+.tx-meta { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+.tx-valor {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.tx-valor.receita { color: var(--accent); }
+.tx-valor.despesa { color: var(--accent2); }
+
+.tx-delete {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1rem;
+  transition: all .2s;
+}
+.tx-delete:hover { border-color: var(--accent2); color: var(--accent2); background: #2e1010; }
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 30px 0;
+}
