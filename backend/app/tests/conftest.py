@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from BackEnd.banco.database import Base
+from backend.app.infrastructure.database.connection import Base
 
 @pytest.fixture
 def db():
