@@ -88,4 +88,4 @@ async function carregarTudo() {
   }
 }
 
-carregarTudo();
+setTipo('receita') + carregarTudo();

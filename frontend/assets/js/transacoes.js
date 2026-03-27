@@ -1,16 +1,30 @@
 let tipoAtual = 'receita';
 
 function setTipo(tipo) {
-  tipoAtual = tipo;
-  const tabR = document.getElementById('tab-receita');
-  const tabD = document.getElementById('tab-despesa');
-  const btn  = document.getElementById('btn-submit');
+    tipoAtual = tipo;
+    const tabR = document.getElementById('tab-receita');
+    const tabD = document.getElementById('tab-despesa');
+    const btn  = document.getElementById('btn-submit');
+ 
+    tabR.className = 'tipo-tab' + (tipo === 'receita' ? ' active-receita' : '');
+    tabD.className = 'tipo-tab' + (tipo === 'despesa' ? ' active-despesa' : '');
+    btn.textContent = tipo === 'receita' ? '+ Adicionar Receita' : '+ Adicionar Despesa';
+    btn.className = 'btn-submit' + (tipo === 'despesa' ? ' despesa-mode' : '');
+    
+    const select = document.getElementById('categoria');
+    const grupos = select.querySelectorAll('optgroup');
+ 
+    grupos.forEach(grupo => {
+      const labelGrupo = grupo.label.toLowerCase();
+      const visivel = labelGrupo.includes(tipo === 'receita' ? 'receita' : 'despesa');
+      grupo.style.display = visivel ? '' : 'none';
 
-  tabR.className = 'tipo-tab' + (tipo === 'receita' ? ' active-receita' : '');
-  tabD.className = 'tipo-tab' + (tipo === 'despesa' ? ' active-despesa' : '');
-  btn.textContent = tipo === 'receita' ? '+ Adicionar Receita' : '+ Adicionar Despesa';
-  btn.className = 'btn-submit' + (tipo === 'despesa' ? ' despesa-mode' : '');
-}
+      grupo.querySelectorAll('option').forEach(opt => {
+        opt.disabled = !visivel;
+      });
+    });
+    select.value = '';
+  }
 
 async function salvarTransacao() {
   const valor     = parseFloat(document.getElementById('valor').value);
