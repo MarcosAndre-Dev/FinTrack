@@ -1,30 +1,28 @@
 let tipoAtual = 'receita';
 
 function setTipo(tipo) {
-    tipoAtual = tipo;
-    const tabR = document.getElementById('tab-receita');
-    const tabD = document.getElementById('tab-despesa');
-    const btn  = document.getElementById('btn-submit');
- 
-    tabR.className = 'tipo-tab' + (tipo === 'receita' ? ' active-receita' : '');
-    tabD.className = 'tipo-tab' + (tipo === 'despesa' ? ' active-despesa' : '');
-    btn.textContent = tipo === 'receita' ? '+ Adicionar Receita' : '+ Adicionar Despesa';
-    btn.className = 'btn-submit' + (tipo === 'despesa' ? ' despesa-mode' : '');
-    
-    const select = document.getElementById('categoria');
-    const grupos = select.querySelectorAll('optgroup');
- 
-    grupos.forEach(grupo => {
-      const labelGrupo = grupo.label.toLowerCase();
-      const visivel = labelGrupo.includes(tipo === 'receita' ? 'receita' : 'despesa');
-      grupo.style.display = visivel ? '' : 'none';
+  tipoAtual = tipo;
+  const tabR = document.getElementById('tab-receita');
+  const tabD = document.getElementById('tab-despesa');
+  const btn  = document.getElementById('btn-submit');
 
-      grupo.querySelectorAll('option').forEach(opt => {
-        opt.disabled = !visivel;
-      });
+  tabR.className = 'tipo-tab' + (tipo === 'receita' ? ' active-receita' : '');
+  tabD.className = 'tipo-tab' + (tipo === 'despesa' ? ' active-despesa' : '');
+  btn.textContent = tipo === 'receita' ? '+ Adicionar Receita' : '+ Adicionar Despesa';
+  btn.className = 'btn-submit' + (tipo === 'despesa' ? ' despesa-mode' : '');
+
+  const select = document.getElementById('categoria');
+  const grupos = select.querySelectorAll('optgroup');
+  grupos.forEach(grupo => {
+    const labelGrupo = grupo.label.toLowerCase();
+    const visivel = labelGrupo.includes(tipo === 'receita' ? 'receita' : 'despesa');
+    grupo.style.display = visivel ? '' : 'none';
+    grupo.querySelectorAll('option').forEach(opt => {
+      opt.disabled = !visivel;
     });
-    select.value = '';
-  }
+  });
+  select.value = '';
+}
 
 async function salvarTransacao() {
   const valor     = parseFloat(document.getElementById('valor').value);
@@ -35,21 +33,18 @@ async function salvarTransacao() {
   if (!categoria)           return toast('Selecione uma categoria.', true);
 
   try {
-    const res = await fetch(`${API_URL}/transacoes`, {
+    const res = await fetch(`${API_URL}/transacoes/`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({tipo: tipoAtual, valor, categoria, descricao})
     });
     if (!res.ok) throw new Error();
-    
     toast('✅ Transação salva com sucesso!');
-    
     document.getElementById('valor').value = '';
     document.getElementById('descricao').value = '';
     document.getElementById('categoria').value = '';
     
-    if(typeof carregarTudo === 'function') await carregarTudo();
-    
+    await carregarTudo(); 
   } catch {
     toast('Erro ao salvar. Verifique se a API está rodando.', true);
   }
@@ -70,6 +65,8 @@ async function deletarTransacao(id) {
 
 function renderHistorico(transacoes) {
   const list = document.getElementById('historico-list');
+  if (!list) return; 
+  
   if (!transacoes.length) {
     list.innerHTML = '<div class="empty-state">Nenhuma transação ainda.</div>';
     return;
