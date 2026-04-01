@@ -3,110 +3,168 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FinTrack - Dashboard</title>
+  <title>FinTrack - Controle Financeiro</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="/frontend/assets/css/global.css">
   <link rel="stylesheet" href="/frontend/assets/css/dashboard.css">
   <link rel="stylesheet" href="/frontend/assets/css/transacoes.css">
+  <link rel="stylesheet" href="/frontend/assets/css/historico.css">
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    .nav-btn {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      transition: color 0.2s;
+    }
+    .nav-btn:hover, .nav-btn.active { color: var(--text); }
+    .header-nav { display: flex; gap: 20px; align-items: center; }
+  </style>
 </head>
 <body>
 
-<header>
-  <div>
+<header style="justify-content: space-between;">
+  <div class="header-left">
     <div class="logo">Fin<span>Track</span></div>
-    <div class="tagline">Controle financeiro pessoal</div>
+  </div>
+  <div class="header-nav">
+    <button class="nav-btn active" id="btn-nav-dashboard" onclick="navegarPara('dashboard')">Dashboard</button>
+    <button class="nav-btn" id="btn-nav-historico" onclick="navegarPara('historico')">Histórico</button>
   </div>
 </header>
 
-<div class="wrapper">
-  <div class="saldo-banner">
-    <div class="saldo-item">
-      <div class="saldo-label">Receitas</div>
-      <div class="saldo-value green" id="total-receitas">R$ 0,00</div>
+<div id="tela-dashboard" style="display: block;">
+  <div class="wrapper">
+    <div class="saldo-banner">
+      <div class="saldo-item">
+        <div class="saldo-label">Receitas</div>
+        <div class="saldo-value green" id="total-receitas">R$ 0,00</div>
+      </div>
+      <div class="saldo-item">
+        <div class="saldo-label">Despesas</div>
+        <div class="saldo-value red" id="total-despesas">R$ 0,00</div>
+      </div>
+      <div class="saldo-item">
+        <div class="saldo-label">Saldo</div>
+        <div class="saldo-value white" id="total-saldo">R$ 0,00</div>
+      </div>
     </div>
-    <div class="saldo-item">
-      <div class="saldo-label">Despesas</div>
-      <div class="saldo-value red" id="total-despesas">R$ 0,00</div>
+
+    <div class="form-section">
+      <div class="card">
+        <div class="tipo-tabs">
+          <button class="tipo-tab active-receita" id="tab-receita" onclick="setTipo('receita')">Receita</button>
+          <button class="tipo-tab" id="tab-despesa" onclick="setTipo('despesa')">Despesa</button>
+        </div>
+        <div class="input-group">
+          <label>Valor</label>
+          <input type="number" id="valor" placeholder="0.00" step="0.01">
+        </div>
+        <div class="input-group">
+          <label>Descrição</label>
+          <input type="text" id="descricao" placeholder="Ex: Salário, Mercado...">
+        </div>
+        <div class="input-group">
+          <label>Categoria</label>
+          <select id="categoria">
+            <option value="" disabled selected>Selecione</option>
+            <optgroup label="Receitas">
+              <option value="salario">Salário</option>
+              <option value="freelance">Freelance</option>
+              <option value="investimentos">Investimentos</option>
+              <option value="outros">Outros</option>
+            </optgroup>
+            <optgroup label="Despesas" style="display:none;">
+              <option value="moradia" disabled>Moradia</option>
+              <option value="alimentacao" disabled>Alimentação</option>
+              <option value="transporte" disabled>Transporte</option>
+              <option value="saude" disabled>Saúde</option>
+              <option value="lazer" disabled>Lazer</option>
+              <option value="educacao" disabled>Educação</option>
+              <option value="outros_gastos" disabled>Outros</option>
+            </optgroup>
+          </select>
+        </div>
+        <button class="btn-submit" id="btn-submit" onclick="salvarTransacao()">+ Adicionar Receita</button>
+      </div>
+
+      <div class="historico-wrap" style="margin-top:20px;">
+        <div class="card-title">Histórico Recente</div>
+        <button class="btn-submit" onclick="navegarPara('historico')" style="text-decoration:none; display:block; text-align:center; margin-top:0;">
+          Ver Histórico Completo →
+        </button>
+      </div>
     </div>
-    <div class="saldo-item">
-      <div class="saldo-label">Saldo</div>
-      <div class="saldo-value white" id="total-saldo">R$ 0,00</div>
+
+    <div class="relatorio">
+      <div class="card">
+        <div class="card-title">Relatório Financeiro</div>
+        <div id="dica-box" style="display:none;" class="dica-box">
+          <span class="dica-icon">💡</span><span id="dica-text"></span>
+        </div>
+        <div class="charts-row">
+          <div class="chart-box">
+            <div class="chart-box-title">Gastos por Categoria</div>
+            <canvas id="chartPizza" height="200"></canvas>
+          </div>
+          <div class="chart-box">
+            <div class="chart-box-title">Receita vs Despesa</div>
+            <canvas id="chartBarras" height="200"></canvas>
+          </div>
+        </div>
+        <div class="card-title" style="margin-top:4px;">Top Categorias de Gasto</div>
+        <div class="cat-list" id="cat-list">
+          <div class="empty-state">Sem dados ainda.</div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <div>
-    <div class="card">
-      <div class="card-title">Nova Transação</div>
-
-      <div class="tipo-tabs">
-        <button class="tipo-tab active-receita" id="tab-receita" onclick="setTipo('receita')">↑ Receita</button>
-        <button class="tipo-tab" id="tab-despesa" onclick="setTipo('despesa')">↓ Despesa</button>
+<div id="tela-historico" style="display: none;">
+  <div class="page-wrapper">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Histórico <span>·</span></div>
+        <div class="page-count" id="page-count">carregando...</div>
       </div>
-
-      <label>Valor</label>
-      <input type="number" id="valor" placeholder="0,00" min="0.01" step="0.01"/>
-
-      <label>Categoria</label>
-      <select id="categoria">
-        <option value="">Selecione...</option>
-        <optgroup label="Receitas">
-          <option value="Salário">Salário</option>
-          <option value="Freelance">Freelance</option>
-          <option value="Investimentos">Investimentos</option>
-          <option value="Outros Rendimentos">Outros Rendimentos</option>
-        </optgroup>
-        <optgroup label="Despesas">
-          <option value="Alimentação">Alimentação</option>
-          <option value="Moradia">Moradia</option>
-          <option value="Transporte">Transporte</option>
-          <option value="Saúde">Saúde</option>
-          <option value="Educação">Educação</option>
-          <option value="Lazer">Lazer</option>
-          <option value="Vestuário">Vestuário</option>
-          <option value="Assinaturas">Assinaturas</option>
-          <option value="Outros">Outros</option>
-        </optgroup>
-      </select>
-
-      <label>Descrição</label>
-      <input type="text" id="descricao" placeholder="Ex: Almoço no restaurante"/>
-
-      <button class="btn-submit" id="btn-submit" onclick="salvarTransacao()">+ Adicionar Receita</button>
     </div>
 
-    <div class="card historico-wrap" style="margin-top:20px;">
-      <div class="card-title">Histórico</div>
-      <div class="historico-list" id="historico-list">
-        <div class="empty-state">Nenhuma transação ainda.</div>
+    <div class="filtros">
+      <button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
+      <button class="filtro-btn" onclick="filtrar('receita', this)">↑ Receitas</button>
+      <button class="filtro-btn" onclick="filtrar('despesa', this)">↓ Despesas</button>
+    </div>
+
+    <div class="tx-list" id="tx-list">
+      <div class="empty-state">
+        <span class="empty-icon">◎</span>
+        Carregando transações...
       </div>
     </div>
   </div>
+</div>
 
-  <div class="relatorio">
-    <div class="card">
-      <div class="card-title">Relatório Financeiro</div>
-
-      <div id="dica-box" style="display:none;" class="dica-box">
-        <span class="dica-icon">💡</span><span id="dica-text"></span>
-      </div>
-
-      <div class="charts-row">
-        <div class="chart-box">
-          <div class="chart-box-title">Gastos por Categoria</div>
-          <canvas id="chartPizza" height="200"></canvas>
-        </div>
-        <div class="chart-box">
-          <div class="chart-box-title">Receita vs Despesa</div>
-          <canvas id="chartBarras" height="200"></canvas>
-        </div>
-      </div>
-
-      <div class="card-title" style="margin-top:4px;">Top Categorias de Gasto</div>
-      <div class="cat-list" id="cat-list">
-        <div class="empty-state">Sem dados ainda.</div>
-      </div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14H6L5 6"/>
+        <path d="M10 11v6M14 11v6"/>
+        <path d="M9 6V4h6v2"/>
+      </svg>
+    </div>
+    <div class="modal-title">Excluir transação</div>
+    <div class="modal-desc" id="modal-desc">Tem certeza?</div>
+    <div class="modal-actions">
+      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirmar" onclick="confirmarDelete()">Sim, excluir</button>
     </div>
   </div>
 </div>
@@ -115,7 +173,33 @@
 
 <script src="/frontend/assets/js/api.js"></script>
 <script src="/frontend/assets/js/main.js"></script>
+<script src="/frontend/assets/js/resumo.js"></script>
 <script src="/frontend/assets/js/transacoes.js"></script>
 <script src="/frontend/assets/js/dashboard.js"></script>
+<script src="/frontend/assets/js/historico.js"></script>
+
+<script>
+  function navegarPara(telaId) {
+    document.getElementById('tela-dashboard').style.display = 'none';
+    document.getElementById('tela-historico').style.display = 'none';
+    
+    document.getElementById('btn-nav-dashboard').classList.remove('active');
+    document.getElementById('btn-nav-historico').classList.remove('active');
+
+    document.getElementById('tela-' + telaId).style.display = 'block';
+    document.getElementById('btn-nav-' + telaId).classList.add('active');
+
+    if (telaId === 'dashboard') {
+      if (typeof carregarTudo === 'function') carregarTudo();
+    } else if (telaId === 'historico') {
+      if (typeof carregar === 'function') carregar();
+    }
+  }
+
+  window.onload = () => {
+    navegarPara('dashboard');
+  };
+</script>
+
 </body>
 </html>

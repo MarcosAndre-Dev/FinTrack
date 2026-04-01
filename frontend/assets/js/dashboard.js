@@ -4,7 +4,7 @@ let chartBarras = null;
 function renderResumo(r) {
   document.getElementById('total-receitas').textContent = fmt(r.receitas);
   document.getElementById('total-despesas').textContent = fmt(r.despesas);
-  
+
   const saldoEl = document.getElementById('total-saldo');
   saldoEl.textContent = fmt(r.saldo);
   saldoEl.className = 'saldo-value ' + (r.saldo >= 0 ? 'green' : 'red');
@@ -28,7 +28,7 @@ function renderResumo(r) {
       datasets: [{data: vals, backgroundColor: cores, borderColor: '#1a1d24', borderWidth: 2}]
     },
     options: {
-      plugins: {legend: {labels: {color: '#7a7f94', font: {family:'DM Mono', size:10}}}},
+      plugins: {legend: {labels: {color: '#7a7f94', font: {family: 'DM Mono', size: 10}}}},
       cutout: '60%'
     }
   });
@@ -49,8 +49,8 @@ function renderResumo(r) {
     options: {
       plugins: {legend: {display: false}},
       scales: {
-        x: {ticks: {color:'#7a7f94', font:{family:'DM Mono'}}, grid: {color:'#2a2d36'}},
-        y: {ticks: {color:'#7a7f94', font:{family:'DM Mono'}, callback: v => 'R$'+v}, grid: {color:'#2a2d36'}}
+        x: {ticks: {color: '#7a7f94', font: {family: 'DM Mono'}}, grid: {color: '#2a2d36'}},
+        y: {ticks: {color: '#7a7f94', font: {family: 'DM Mono'}, callback: v => 'R$' + v}, grid: {color: '#2a2d36'}}
       }
     }
   });
@@ -65,27 +65,20 @@ function renderResumo(r) {
     <div class="cat-item">
       <div class="cat-name">${c.categoria}</div>
       <div class="cat-bar-wrap">
-        <div class="cat-bar" style="width:${(c.total/max*100).toFixed(1)}%"></div>
+        <div class="cat-bar" style="width:${(c.total / max * 100).toFixed(1)}%"></div>
       </div>
       <div class="cat-val">${fmt(c.total)}</div>
     </div>
   `).join('');
 }
 
+// CORREÇÃO AQUI: Agora ele carrega os gráficos E a pequena lista de histórico da home
 async function carregarTudo() {
-  try {
-    const [resTx, resResumo] = await Promise.all([
-      fetch(`${API_URL}/transacoes/`), 
-      fetch(`${API_URL}/transacoes/resumo`) 
-    ]);
-    const transacoes = await resTx.json();
-    const resumo     = await resResumo.json();
-    
+  const resumo = await carregarResumo();
+  if (resumo) renderResumo(resumo);
+  
+  if (typeof renderHistorico === 'function') {
+    const transacoes = await carregarTransacoes();
     renderHistorico(transacoes);
-    renderResumo(resumo);
-  } catch {
-    toast('Não foi possível conectar à API.', true);
   }
 }
-
-setTipo('receita') + carregarTudo();
