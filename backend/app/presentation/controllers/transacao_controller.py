@@ -6,6 +6,7 @@ from backend.app.application.use_cases.deletar_transacao import DeletarTransacao
 from backend.app.application.dtos.transacao_dto import TransacaoCreateDTO
 from backend.app.infrastructure.repositories.transacao_repository_impl import TransacaoRepositoryImpl
 from backend.app.infrastructure.database.models import TransacaoModel
+from backend.app.infrastructure.services.cotacaoService import CotacaoService
 
 class TransacaoController:
 
