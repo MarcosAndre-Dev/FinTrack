@@ -18,15 +18,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'pip' 
 
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          # Caso o pytest não esteja no requirements, descomente a linha abaixo:
-          # pip install pytest
+          # Instala o pytest explicitamente para garantir
+          pip install pytest
+          # Tenta instalar o resto, se o arquivo existir
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Rodar testes
         run: |
+          # O PYTHONPATH aponta para a pasta backend para o pytest achar seu código
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
           python -m pytest tests/ -v
