@@ -14,7 +14,6 @@ def listar(db: Session = Depends(get_db)):
     try:
         transacoes = TransacaoController(db).listar()
 
-        # 🔥 consumo de API externa
         response = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
 
         if response.status_code != 200:
