@@ -30,19 +30,14 @@ function fecharModal() {
 
 async function confirmarDelete() {
   if (!idParaDeletar) return;
-  
-  const idSeguro = idParaDeletar; 
-  
-  fecharModal(); 
-  
+  const idSeguro = idParaDeletar;
+  fecharModal();
   try {
     const res = await fetch(`${API_URL}/transacoes/${idSeguro}`, { method: 'DELETE' });
-    
     if (!res.ok) throw new Error();
     toast('🗑️ Transação removida com sucesso.');
     if (typeof carregar === 'function') await carregar();
     if (typeof carregarTudo === 'function') await carregarTudo();
-    
   } catch {
     toast('Erro ao deletar transação.', true);
   }
@@ -50,8 +45,8 @@ async function confirmarDelete() {
 
 function renderizar(lista) {
   const container = document.getElementById('tx-list');
-  if (!container) return; 
-  
+  if (!container) return;
+
   document.getElementById('page-count').textContent = `${lista.length} transação${lista.length !== 1 ? 'ões' : ''}`;
 
   if (!lista.length) {
@@ -74,7 +69,7 @@ function renderizar(lista) {
         </div>
       </div>
       <div class="tx-valor ${t.tipo}">${t.tipo === 'receita' ? '+' : '-'}${fmt(t.valor)}</div>
-      <button class="tx-delete" onclick="abrirModal(${t.id}, '${(t.descricao || t.categoria).replace(/'/g, "\\'")}')" title="Excluir transação">
+      <button class="tx-delete" onclick="abrirModal(${t.id}, '${(t.descricao || t.categoria).replace(/'/g, "\\'")}')">
         <svg class="icon-trash" viewBox="0 0 24 24">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14H6L5 6"/>
@@ -88,8 +83,9 @@ function renderizar(lista) {
 
 async function carregar() {
   try {
-    const res = await fetch(`${API_URL}/transacoes`);
-    todasTransacoes = await res.json();
+    const res = await fetch(`${API_URL}/transacoes/`, { cache: 'no-store' });
+    const data = await res.json();
+    todasTransacoes = data.transacoes; // 👈 aqui está o fix
     renderizar(todasTransacoes);
   } catch {
     toast('Não foi possível conectar à API.', true);
