@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from backend.app.infrastructure.database.connection import Base, engine
 from backend.app.infrastructure.database import models
 from backend.app.presentation.routes.transacao_routes import router
-from fastapi.staticfiles import StaticFiles
+from backend.app.presentation.routes.auth_routes import router as auth_router
 
 app = FastAPI()
 
@@ -20,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(auth_router)
 
 app.mount("/frontend", StaticFiles(directory="frontend"), name="static")
 
