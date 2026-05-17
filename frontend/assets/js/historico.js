@@ -33,8 +33,8 @@ async function confirmarDelete() {
   const idSeguro = idParaDeletar;
   fecharModal();
   try {
-    const res = await fetch(`${API_URL}/transacoes/${idSeguro}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error();
+    const res = await apiFetch(`/transacoes/${idSeguro}`, { method: 'DELETE' });
+    if (!res || !res.ok) throw new Error();
     toast('🗑️ Transação removida com sucesso.');
     if (typeof carregar === 'function') await carregar();
     if (typeof carregarTudo === 'function') await carregarTudo();
@@ -83,9 +83,10 @@ function renderizar(lista) {
 
 async function carregar() {
   try {
-    const res = await fetch(`${API_URL}/transacoes/`, { cache: 'no-store' });
+    const res = await apiFetch('/transacoes/');
+    if (!res) return;
     const data = await res.json();
-    todasTransacoes = data.transacoes; // 👈 aqui está o fix
+    todasTransacoes = data.transacoes || [];
     renderizar(todasTransacoes);
   } catch {
     toast('Não foi possível conectar à API.', true);

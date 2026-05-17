@@ -1,7 +1,7 @@
 async function carregarResumo() {
   try {
-    const res = await fetch(`${API_URL}/transacoes/resumo`);
-    if (!res.ok) throw new Error();
+    const res = await apiFetch('/transacoes/resumo');
+    if (!res || !res.ok) throw new Error();
     return await res.json();
   } catch {
     toast('Não foi possível carregar o resumo.', true);
@@ -11,9 +11,10 @@ async function carregarResumo() {
 
 async function carregarTransacoes() {
   try {
-    const res = await fetch(`${API_URL}/transacoes/`);
-    if (!res.ok) throw new Error();
-    return await res.json();
+    const res = await apiFetch('/transacoes/');
+    if (!res || !res.ok) throw new Error();
+    const data = await res.json();
+    return data.transacoes || [];
   } catch {
     toast('Não foi possível carregar as transações.', true);
     return [];

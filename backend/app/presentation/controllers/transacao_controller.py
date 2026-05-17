@@ -6,13 +6,14 @@ from backend.app.application.use_cases.deletar_transacao import DeletarTransacao
 from backend.app.application.dtos.transacao_dto import TransacaoCreateDTO
 from backend.app.infrastructure.repositories.transacao_repository_impl import TransacaoRepositoryImpl
 from backend.app.infrastructure.database.models import TransacaoModel
-from backend.app.infrastructure.services.cotacaoService import CotacaoService
+
 
 class TransacaoController:
 
-    def __init__(self, db: Session):
-        self.repository = TransacaoRepositoryImpl(db)
+    def __init__(self, db: Session, usuario_id: int):
+        self.repository = TransacaoRepositoryImpl(db, usuario_id)
         self.db = db
+        self.usuario_id = usuario_id
 
     def criar(self, dto: TransacaoCreateDTO):
         return CriarTransacao(self.repository).executar(dto)
@@ -24,13 +25,15 @@ class TransacaoController:
         return DeletarTransacao(self.repository).executar(id)
 
     def resumo(self):
-        receitas = self.db.query(func.sum(TransacaoModel.valor)).filter(TransacaoModel.tipo == "receita").scalar() or 0.0
-        despesas = self.db.query(func.sum(TransacaoModel.valor)).filter(TransacaoModel.tipo == "despesa").scalar() or 0.0
+        base = self.db.query(TransacaoModel).filter(TransacaoModel.usuario_id == self.usuario_id)
+
+        receitas = base.filter(TransacaoModel.tipo == "receita").with_entities(func.sum(TransacaoModel.valor)).scalar() or 0.0
+        despesas = base.filter(TransacaoModel.tipo == "despesa").with_entities(func.sum(TransacaoModel.valor)).scalar() or 0.0
         saldo = receitas - despesas
 
         categorias_raw = (
-            self.db.query(TransacaoModel.categoria, func.sum(TransacaoModel.valor).label("total"))
-            .filter(TransacaoModel.tipo == "despesa")
+            base.filter(TransacaoModel.tipo == "despesa")
+            .with_entities(TransacaoModel.categoria, func.sum(TransacaoModel.valor).label("total"))
             .group_by(TransacaoModel.categoria)
             .order_by(func.sum(TransacaoModel.valor).desc())
             .all()

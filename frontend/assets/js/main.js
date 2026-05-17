@@ -22,8 +22,10 @@ window.addEventListener('load', function() {
   const el = document.getElementById('usuario-nome');
   if (el && nome) el.textContent = nome;
 });
+
 function logout() {
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('usuario_nome');
+  sessionStorage.removeItem('usuario_id');
   window.location.href = '/frontend/pages/login.html';
 }

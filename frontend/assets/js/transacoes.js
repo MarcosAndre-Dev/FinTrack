@@ -33,18 +33,17 @@ async function salvarTransacao() {
   if (!categoria)           return toast('Selecione uma categoria.', true);
 
   try {
-    const res = await fetch(`${API_URL}/transacoes/`, {
+    const res = await apiFetch('/transacoes/', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({tipo: tipoAtual, valor, categoria, descricao})
+      body: JSON.stringify({ tipo: tipoAtual, valor, categoria, descricao }),
     });
-    if (!res.ok) throw new Error();
+    if (!res || !res.ok) throw new Error();
     toast('✅ Transação salva com sucesso!');
     document.getElementById('valor').value = '';
     document.getElementById('descricao').value = '';
     document.getElementById('categoria').value = '';
-    
-    await carregarTudo(); 
+
+    await carregarTudo();
   } catch {
     toast('Erro ao salvar. Verifique se a API está rodando.', true);
   }
@@ -53,11 +52,11 @@ async function salvarTransacao() {
 async function deletarTransacao(id) {
   if (!confirm('Deseja excluir esta transação?')) return;
   try {
-    const res = await fetch(`${API_URL}/transacoes/${id}`, {method: 'DELETE'});
-    if (!res.ok) throw new Error();
+    const res = await apiFetch(`/transacoes/${id}`, { method: 'DELETE' });
+    if (!res || !res.ok) throw new Error();
     toast('🗑️ Transação removida.');
-    
-    if(typeof carregarTudo === 'function') await carregarTudo();
+
+    if (typeof carregarTudo === 'function') await carregarTudo();
   } catch {
     toast('Erro ao deletar.', true);
   }
@@ -65,8 +64,8 @@ async function deletarTransacao(id) {
 
 function renderHistorico(transacoes) {
   const list = document.getElementById('historico-list');
-  if (!list) return; 
-  
+  if (!list) return;
+
   if (!transacoes.length) {
     list.innerHTML = '<div class="empty-state">Nenhuma transação ainda.</div>';
     return;

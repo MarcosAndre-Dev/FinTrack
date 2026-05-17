@@ -24,6 +24,46 @@
     }
     .nav-btn:hover, .nav-btn.active { color: var(--text); }
     .header-nav { display: flex; gap: 20px; align-items: center; }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-left: 10px;
+      padding-left: 20px;
+      border-left: 1px solid var(--border);
+    }
+    .header-user-nome {
+      font-size: 0.8rem;
+      color: var(--muted);
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-logout {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      padding: 7px 14px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-logout:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+    .btn-logout svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+    }
   </style>
 </head>
 <body>
@@ -35,6 +75,18 @@
   <div class="header-nav">
     <button class="nav-btn active" id="btn-nav-dashboard" onclick="navegarPara('dashboard')">Dashboard</button>
     <button class="nav-btn" id="btn-nav-historico" onclick="navegarPara('historico')">Histórico</button>
+
+    <div class="header-user">
+      <span class="header-user-nome" id="usuario-nome"></span>
+      <button class="btn-logout" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair
+      </button>
+    </div>
   </div>
 </header>
 

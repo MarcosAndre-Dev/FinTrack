@@ -1,12 +1,10 @@
-
 function mostrarErro(msg) {
   const el = document.getElementById('erro-msg');
   if (!el) return;
   el.textContent = msg;
   el.style.display = 'block';
-
   el.style.animation = 'none';
-  el.offsetHeight; 
+  el.offsetHeight;
   el.style.animation = '';
 }
 
@@ -100,8 +98,10 @@ async function fazerLogin() {
       return;
     }
 
-    sessionStorage.setItem('token', data.token);
-    sessionStorage.setItem('usuario_nome', data.nome || '');
+    // Salva token e dados do usuário corretamente
+    sessionStorage.setItem('token', data.access_token);
+    sessionStorage.setItem('usuario_nome', data.user.nome);
+    sessionStorage.setItem('usuario_id', data.user.id);
     window.location.href = '/';
 
   } catch {
