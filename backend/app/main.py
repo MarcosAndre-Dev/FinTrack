@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from backend.app.infrastructure.database.connection import Base, engine
 from backend.app.infrastructure.database import models
 from backend.app.presentation.routes.transacao_routes import router
-from fastapi.staticfiles import StaticFiles
+import os
 
 app = FastAPI()
 
@@ -26,3 +26,8 @@ app.mount("/frontend", StaticFiles(directory="frontend"), name="static")
 @app.get("/")
 def serve_frontend():
     return FileResponse("frontend/pages/index.html")
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("backend.app.main:app", host="0.0.0.0", port=port)
