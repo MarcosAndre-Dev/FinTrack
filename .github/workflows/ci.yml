@@ -12,17 +12,23 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Configurar Python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Instalar dependências
         run: |
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          # Instala o pytest explicitamente para garantir
+          pip install pytest
+          # Tenta instalar o resto, se o arquivo existir
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Rodar testes
         run: |
-          pytest tests/ -v
+          # O PYTHONPATH aponta para a pasta backend para o pytest achar seu código
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+          python -m pytest tests/ -v

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fintrack — Criar conta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/frontend/assets/css/login-resgistrer.css">
+</head>
+<body>
+  <div class="auth-bg">
+    <div class="grid-lines"></div>
+    <div class="glow"></div>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-brand">
+      <span class="logo">Fin<span>track</span></span>
+      <p class="tagline">controle financeiro pessoal</p>
+    </div>
+
+    <div class="auth-card">
+      <h1 class="auth-title">Criar conta</h1>
+      <p class="auth-sub">Comece a controlar suas finanças.</p>
+
+      <div id="erro-msg" class="erro-msg" style="display:none;"></div>
+
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" placeholder="Seu nome completo" autocomplete="name" />
+      </div>
+
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="seu@email.com" autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label for="senha">Senha</label>
+        <div class="input-wrap">
+          <input type="password" id="senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+          <button class="toggle-senha" onclick="toggleSenha('senha', this)" tabindex="-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="confirmar">Confirmar senha</label>
+        <div class="input-wrap">
+          <input type="password" id="confirmar" placeholder="Repita a senha" autocomplete="new-password" />
+          <button class="toggle-senha" onclick="toggleSenha('confirmar', this)" tabindex="-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="senha-strength" id="senha-strength" style="display:none">
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <span class="strength-label" id="strength-label"></span>
+      </div>
+
+      <button class="btn-auth" id="btn-register" onclick="fazerCadastro()">
+        <span class="btn-text">Criar conta</span>
+        <span class="btn-loader" style="display:none">●●●</span>
+      </button>
+
+      <p class="auth-link">Já tem conta? <a href="/frontend/pages/login.html">Entrar</a></p>
+    </div>
+  </div>
+
+  <script src="/frontend/assets/js/api.js"></script>
+  <script src="/frontend/assets/js/Auth.js"></script>
+  <script>
+    document.getElementById('senha').addEventListener('input', function() {
+      mostrarForca(this.value);
+    });
+  </script>
+</body>
+</html>

@@ -9,3 +9,23 @@ function toast(msg, err = false) {
   el.className = 'show' + (err ? ' error' : '');
   setTimeout(() => el.className = '', 3000);
 }
+
+(function authGuard() {
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/frontend/pages/login.html';
+  }
+})();
+
+window.addEventListener('load', function() {
+  const nome = sessionStorage.getItem('usuario_nome');
+  const el = document.getElementById('usuario-nome');
+  if (el && nome) el.textContent = nome;
+});
+
+function logout() {
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('usuario_nome');
+  sessionStorage.removeItem('usuario_id');
+  window.location.href = '/frontend/pages/login.html';
+}

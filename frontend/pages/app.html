@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FinTrack - Controle Financeiro</title>
-  
+  <title>FinTrack – App</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="/frontend/assets/css/global.css">
   <link rel="stylesheet" href="/frontend/assets/css/dashboard.css">
   <link rel="stylesheet" href="/frontend/assets/css/transacoes.css">
   <link rel="stylesheet" href="/frontend/assets/css/historico.css">
-  
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <style>
     .nav-btn {
       background: none; border: none; color: var(--muted); cursor: pointer;
@@ -26,67 +26,44 @@
     .header-nav { display: flex; gap: 20px; align-items: center; }
 
     .header-user {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-left: 10px;
-      padding-left: 20px;
-      border-left: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
     }
-    .header-user-nome {
-      font-size: 0.8rem;
+    .user-greeting {
+      font-size: 0.76rem;
       color: var(--muted);
-      max-width: 160px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
+    .user-greeting strong { color: var(--text); }
     .btn-logout {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      cursor: pointer;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      padding: 7px 14px;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 0.76rem; padding: 7px 14px; cursor: pointer; transition: all .2s;
     }
-    .btn-logout:hover {
-      border-color: var(--accent2);
-      color: var(--accent2);
-    }
-    .btn-logout svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-    }
+    .btn-logout:hover { border-color: var(--accent2); color: var(--accent2); }
   </style>
 </head>
 <body>
 
-<header style="justify-content: space-between;">
-  <div class="header-left">
-    <div class="logo">Fin<span>Track</span></div>
-  </div>
-  <div class="header-nav">
-    <button class="nav-btn active" id="btn-nav-dashboard" onclick="navegarPara('dashboard')">Dashboard</button>
-    <button class="nav-btn" id="btn-nav-historico" onclick="navegarPara('historico')">Histórico</button>
+<script>
+  (function() {
+    const token = localStorage.getItem('ft_token');
+    if (!token) {
+      window.location.replace('/');
+    }
+  })();
+</script>
 
-    <div class="header-user">
-      <span class="header-user-nome" id="usuario-nome"></span>
-      <button class="btn-logout" onclick="logout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        Sair
-      </button>
+<header style="justify-content: space-between;">
+  <div style="display:flex; align-items:center; gap:20px;">
+    <div class="logo">Fin<span>Track</span></div>
+    <div class="header-nav">
+      <button class="nav-btn active" id="btn-nav-dashboard" onclick="navegarPara('dashboard')">Dashboard</button>
+      <button class="nav-btn" id="btn-nav-historico" onclick="navegarPara('historico')">Histórico</button>
     </div>
+  </div>
+
+  <div class="header-user">
+    <span class="user-greeting">Olá, <strong id="nome-usuario">—</strong></span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
   </div>
 </header>
 
@@ -147,7 +124,7 @@
 
       <div class="historico-wrap" style="margin-top:20px;">
         <div class="card-title">Histórico Recente</div>
-        <button class="btn-submit" onclick="navegarPara('historico')" style="text-decoration:none; display:block; text-align:center; margin-top:0;">
+        <button class="btn-submit" onclick="navegarPara('historico')" style="text-decoration:none;display:block;text-align:center;margin-top:0;">
           Ver Histórico Completo →
         </button>
       </div>
@@ -186,13 +163,11 @@
         <div class="page-count" id="page-count">carregando...</div>
       </div>
     </div>
-
     <div class="filtros">
       <button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
       <button class="filtro-btn" onclick="filtrar('receita', this)">↑ Receitas</button>
       <button class="filtro-btn" onclick="filtrar('despesa', this)">↓ Despesas</button>
     </div>
-
     <div class="tx-list" id="tx-list">
       <div class="empty-state">
         <span class="empty-icon">◎</span>
@@ -231,26 +206,37 @@
 <script src="/frontend/assets/js/historico.js"></script>
 
 <script>
+  (function() {
+    const raw = localStorage.getItem('ft_user');
+    if (raw) {
+      try {
+        const user = JSON.parse(raw);
+        const nome = user.nome || user.email || 'Usuário';
+        document.getElementById('nome-usuario').textContent = nome.split(' ')[0];
+      } catch(_) {}
+    }
+  })();
+
+  function logout() {
+    localStorage.removeItem('ft_token');
+    localStorage.removeItem('ft_user');
+    window.location.replace('/');
+  }
+
   function navegarPara(telaId) {
     document.getElementById('tela-dashboard').style.display = 'none';
     document.getElementById('tela-historico').style.display = 'none';
-    
     document.getElementById('btn-nav-dashboard').classList.remove('active');
     document.getElementById('btn-nav-historico').classList.remove('active');
 
     document.getElementById('tela-' + telaId).style.display = 'block';
     document.getElementById('btn-nav-' + telaId).classList.add('active');
 
-    if (telaId === 'dashboard') {
-      if (typeof carregarTudo === 'function') carregarTudo();
-    } else if (telaId === 'historico') {
-      if (typeof carregar === 'function') carregar();
-    }
+    if (telaId === 'dashboard' && typeof carregarTudo === 'function') carregarTudo();
+    if (telaId === 'historico' && typeof carregar === 'function') carregar();
   }
 
-  window.onload = () => {
-    navegarPara('dashboard');
-  };
+  window.onload = () => navegarPara('dashboard');
 </script>
 
 </body>

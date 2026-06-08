@@ -3,13 +3,16 @@ from backend.app.domain.entities.transacao import Transacao
 from backend.app.domain.repositories.transacao_repository import TransacaoRepository
 from backend.app.infrastructure.database.models import TransacaoModel
 
+
 class TransacaoRepositoryImpl(TransacaoRepository):
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, usuario_id: int):
         self.db = db
+        self.usuario_id = usuario_id
 
     def salvar(self, transacao: Transacao) -> Transacao:
         model = TransacaoModel(
+            usuario_id=self.usuario_id,
             tipo=transacao.tipo,
             valor=transacao.valor,
             categoria=transacao.categoria,
@@ -23,7 +26,12 @@ class TransacaoRepositoryImpl(TransacaoRepository):
         return transacao
 
     def listar(self) -> list[Transacao]:
-        models = self.db.query(TransacaoModel).order_by(TransacaoModel.data.desc()).all()
+        models = (
+            self.db.query(TransacaoModel)
+            .filter(TransacaoModel.usuario_id == self.usuario_id)
+            .order_by(TransacaoModel.data.desc())
+            .all()
+        )
         return [
             Transacao(
                 id=m.id,
@@ -37,7 +45,11 @@ class TransacaoRepositoryImpl(TransacaoRepository):
         ]
 
     def buscar_por_id(self, id: int) -> Transacao | None:
-        m = self.db.query(TransacaoModel).filter(TransacaoModel.id == id).first()
+        m = (
+            self.db.query(TransacaoModel)
+            .filter(TransacaoModel.id == id, TransacaoModel.usuario_id == self.usuario_id)
+            .first()
+        )
         if not m:
             return None
         return Transacao(
@@ -50,7 +62,11 @@ class TransacaoRepositoryImpl(TransacaoRepository):
         )
 
     def deletar(self, id: int) -> None:
-        m = self.db.query(TransacaoModel).filter(TransacaoModel.id == id).first()
+        m = (
+            self.db.query(TransacaoModel)
+            .filter(TransacaoModel.id == id, TransacaoModel.usuario_id == self.usuario_id)
+            .first()
+        )
         if m:
             self.db.delete(m)
             self.db.commit()
