@@ -32,6 +32,8 @@ A motivação do projeto surge da constatação de que muitas pessoas atualmente
 - Testes automatizados com `unittest`  
 - Linting com `flake8`  
 - Integração Contínua com **GitHub Actions**  
+- docker build -t fintrack .
+- docker run -d -p 8000:8000 fintrack
 
 ---
 
