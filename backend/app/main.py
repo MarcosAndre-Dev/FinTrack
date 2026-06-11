@@ -5,13 +5,17 @@ from fastapi.responses import FileResponse
 from backend.app.infrastructure.database.connection import Base, engine
 from backend.app.infrastructure.database import models
 from backend.app.presentation.routes.transacao_routes import router
-
 import os
 from backend.app.presentation.routes.auth_routes import router as auth_router
+from backend.app.presentation.routes.conselho_routes import router as conselho_router
+
+
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
+
+app.include_router(conselho_router)
 
 app.add_middleware(
     CORSMiddleware,
