@@ -32,3 +32,6 @@ jobs:
           # O PYTHONPATH aponta para a pasta backend para o pytest achar seu código
           export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
           python -m pytest tests/ -v
+        
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

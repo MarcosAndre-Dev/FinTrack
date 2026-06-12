@@ -1,7 +1,7 @@
 """
 auth_routes.py – Rotas de autenticação para o FinTrack
 """
-
+import bcrypt
 import os
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -42,16 +42,10 @@ class TokenResponse(BaseModel):
 
 
 def _hash_senha(senha: str) -> str:
-    from passlib.context import CryptContext
-    pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    return pwd_ctx.hash(senha)
-
+    return bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
 
 def _verificar_senha(senha: str, hashed: str) -> bool:
-    from passlib.context import CryptContext
-    pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    return pwd_ctx.verify(senha, hashed)
-
+    return bcrypt.checkpw(senha.encode(), hashed.encode())
 
 def _criar_token(data: dict) -> str:
     from jose import jwt
