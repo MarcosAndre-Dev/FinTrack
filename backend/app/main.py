@@ -34,6 +34,10 @@ app.mount("/frontend", StaticFiles(directory="frontend"), name="static")
 def serve_frontend():
     return FileResponse("frontend/pages/index.html")
 
+@app.get("/app")
+def serve_app_html():
+    return FileResponse("frontend/pages/app.html")
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))

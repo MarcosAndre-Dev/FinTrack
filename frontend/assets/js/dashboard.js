@@ -84,14 +84,151 @@ function renderResumo(r) {
   `).join('');
 }
 
+let dbFiltroMes = null;
+let dbFiltroAno = null;
+let chartEvolucao = null;
+
 async function carregarTudo() {
-  const resumo = await carregarResumo();
-  if (resumo) renderResumo(resumo);
+  let resumoUrl = '/transacoes/resumo';
+  let transacoesUrl = '/transacoes/';
+  const params = [];
+  if (dbFiltroMes) params.push(`mes=${dbFiltroMes}`);
+  if (dbFiltroAno) params.push(`ano=${dbFiltroAno}`);
+  if (params.length) {
+    const qs = '?' + params.join('&');
+    resumoUrl += qs;
+    transacoesUrl += qs;
+  }
+
+  try {
+    const res = await apiFetch(resumoUrl);
+    if (res && res.ok) {
+      const resumo = await res.json();
+      renderResumo(resumo);
+    }
+  } catch (e) {
+    toast('Não foi possível carregar o resumo.', true);
+  }
   
   carregarConselhoGemini();
 
   if (typeof renderHistorico === 'function') {
-    const transacoes = await carregarTransacoes();
-    renderHistorico(transacoes);
+    try {
+      const res = await apiFetch(transacoesUrl);
+      if (res && res.ok) {
+        const data = await res.json();
+        renderHistorico(data.transacoes || []);
+      }
+    } catch {
+      toast('Não foi possível carregar as transações.', true);
+    }
+  }
+
+  await carregarEvolucao();
+}
+
+async function limparFiltroDashboard() {
+  const el = document.getElementById('dashboard-filtro-mes-ano');
+  if (el) el.value = '';
+  dbFiltroMes = null;
+  dbFiltroAno = null;
+  await carregarTudo();
+}
+
+async function carregarEvolucao() {
+  try {
+    const res = await apiFetch('/transacoes/evolucao');
+    if (!res || !res.ok) return;
+    const data = await res.json();
+    renderEvolucao(data);
+  } catch (e) {
+    console.error("Erro ao carregar evolução:", e);
   }
 }
+
+function renderEvolucao(evolucao) {
+  const canvas = document.getElementById('chartEvolucao');
+  if (!canvas) return;
+  
+  if (chartEvolucao) chartEvolucao.destroy();
+  
+  const labels = evolucao.map(item => item.mes_nome);
+  const receitas = evolucao.map(item => item.receitas);
+  const despesas = evolucao.map(item => item.despesas);
+  const saldos = evolucao.map(item => item.saldo);
+  
+  chartEvolucao = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Receitas',
+          data: receitas,
+          backgroundColor: 'rgba(0, 229, 160, 0.4)',
+          borderColor: '#00e5a0',
+          borderWidth: 2,
+          borderRadius: 4,
+        },
+        {
+          label: 'Despesas',
+          data: despesas,
+          backgroundColor: 'rgba(255, 107, 107, 0.4)',
+          borderColor: '#ff6b6b',
+          borderWidth: 2,
+          borderRadius: 4,
+        },
+        {
+          label: 'Saldo',
+          data: saldos,
+          type: 'line',
+          borderColor: '#ffd166',
+          borderWidth: 3,
+          backgroundColor: 'transparent',
+          tension: 0.3,
+          pointBackgroundColor: '#ffd166',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: { color: '#7a7f94', font: { family: 'DM Mono', size: 10 } }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#7a7f94', font: { family: 'DM Mono' } },
+          grid: { color: '#2a2d36' }
+        },
+        y: {
+          ticks: {
+            color: '#7a7f94',
+            font: { family: 'DM Mono' },
+            callback: v => 'R$ ' + v
+          },
+          grid: { color: '#2a2d36' }
+        }
+      }
+    }
+  });
+}
+
+window.addEventListener('load', () => {
+  const dbFiltroInput = document.getElementById('dashboard-filtro-mes-ano');
+  if (dbFiltroInput) {
+    dbFiltroInput.addEventListener('change', async (e) => {
+      const val = e.target.value;
+      if (val) {
+        const [ano, mes] = val.split('-');
+        dbFiltroMes = parseInt(mes);
+        dbFiltroAno = parseInt(ano);
+      } else {
+        dbFiltroMes = null;
+        dbFiltroAno = null;
+      }
+      await carregarTudo();
+    });
+  }
+});

@@ -7,6 +7,7 @@ class TransacaoCreateDTO(BaseModel):
     valor: float
     categoria: str
     descricao: Optional[str] = ""
+    data: Optional[date] = None
 
     @field_validator("tipo")
     def validar_tipo(cls, v):
