@@ -5,5 +5,5 @@ class ListarTransacoes:
     def __init__(self, repository: TransacaoRepository):
         self.repository = repository
 
-    def executar(self) -> list[Transacao]:
-        return self.repository.listar()
+    def executar(self, mes: int = None, ano: int = None) -> list[Transacao]:
+        return self.repository.listar(mes=mes, ano=ano)

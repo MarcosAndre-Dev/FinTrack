@@ -9,7 +9,7 @@ class TransacaoRepository(ABC):
         pass
 
     @abstractmethod
-    def listar(self) -> list[Transacao]:
+    def listar(self, mes: Optional[int] = None, ano: Optional[int] = None) -> list[Transacao]:
         pass
 
     @abstractmethod
