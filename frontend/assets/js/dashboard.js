@@ -1,6 +1,25 @@
 let chartPizza = null;
 let chartBarras = null;
 
+async function carregarConselhoGemini() {
+  const dicaBox = document.getElementById('dica-box');
+  const dicaText = document.getElementById('dica-text');
+  
+  dicaBox.style.display = 'block';
+  dicaText.textContent = 'Analisando suas finanças...';
+
+  try {
+    const token = sessionStorage.getItem('token'); // ← corrigido aqui
+    const res = await fetch('/conselhos/', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    dicaText.textContent = data.conselho;
+  } catch (e) {
+    dicaText.textContent = 'Não foi possível carregar o conselho financeiro.';
+  }
+}
+
 function renderResumo(r) {
   document.getElementById('total-receitas').textContent = fmt(r.receitas);
   document.getElementById('total-despesas').textContent = fmt(r.despesas);
@@ -8,13 +27,6 @@ function renderResumo(r) {
   const saldoEl = document.getElementById('total-saldo');
   saldoEl.textContent = fmt(r.saldo);
   saldoEl.className = 'saldo-value ' + (r.saldo >= 0 ? 'green' : 'red');
-
-  if (r.dica_economia) {
-    document.getElementById('dica-box').style.display = 'block';
-    document.getElementById('dica-text').textContent = r.dica_economia;
-  } else {
-    document.getElementById('dica-box').style.display = 'none';
-  }
 
   const cats  = r.categorias_despesa.map(c => c.categoria);
   const vals  = r.categorias_despesa.map(c => c.total);
@@ -72,11 +84,12 @@ function renderResumo(r) {
   `).join('');
 }
 
-// CORREÇÃO AQUI: Agora ele carrega os gráficos E a pequena lista de histórico da home
 async function carregarTudo() {
   const resumo = await carregarResumo();
   if (resumo) renderResumo(resumo);
   
+  carregarConselhoGemini();
+
   if (typeof renderHistorico === 'function') {
     const transacoes = await carregarTransacoes();
     renderHistorico(transacoes);
