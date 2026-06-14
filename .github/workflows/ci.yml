@@ -35,3 +35,4 @@ jobs:
         
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TESTING: "true"
