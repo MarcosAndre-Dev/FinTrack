@@ -30,9 +30,14 @@ def get_usuario_id(authorization: str = Header(...)) -> int:
 
 
 @router.get("/")
-def listar(db: Session = Depends(get_db), usuario_id: int = Depends(get_usuario_id)):
+def listar(
+    mes: int = None,
+    ano: int = None,
+    db: Session = Depends(get_db),
+    usuario_id: int = Depends(get_usuario_id)
+):
     try:
-        transacoes = TransacaoController(db, usuario_id).listar()
+        transacoes = TransacaoController(db, usuario_id).listar(mes=mes, ano=ano)
 
         response = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
         cotacao = float(response.json()["USDBRL"]["bid"]) if response.status_code == 200 else None
@@ -62,5 +67,18 @@ def deletar(id: int, db: Session = Depends(get_db), usuario_id: int = Depends(ge
 
 
 @router.get("/resumo")
-def resumo(db: Session = Depends(get_db), usuario_id: int = Depends(get_usuario_id)):
-    return TransacaoController(db, usuario_id).resumo()
+def resumo(
+    mes: int = None,
+    ano: int = None,
+    db: Session = Depends(get_db),
+    usuario_id: int = Depends(get_usuario_id)
+):
+    return TransacaoController(db, usuario_id).resumo(mes=mes, ano=ano)
+
+
+@router.get("/evolucao")
+def evolucao(db: Session = Depends(get_db), usuario_id: int = Depends(get_usuario_id)):
+    try:
+        return TransacaoController(db, usuario_id).evolucao()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Erro ao buscar evolução")

@@ -28,20 +28,28 @@ async function salvarTransacao() {
   const valor     = parseFloat(document.getElementById('valor').value);
   const categoria = document.getElementById('categoria').value;
   const descricao = document.getElementById('descricao').value;
+  const dataVal   = document.getElementById('data').value || null;
 
   if (!valor || valor <= 0) return toast('Informe um valor válido.', true);
   if (!categoria)           return toast('Selecione uma categoria.', true);
 
   try {
+    const body = { tipo: tipoAtual, valor, categoria, descricao };
+    if (dataVal) {
+      body.data = dataVal;
+    }
     const res = await apiFetch('/transacoes/', {
       method: 'POST',
-      body: JSON.stringify({ tipo: tipoAtual, valor, categoria, descricao }),
+      body: JSON.stringify(body),
     });
     if (!res || !res.ok) throw new Error();
     toast('✅ Transação salva com sucesso!');
     document.getElementById('valor').value = '';
     document.getElementById('descricao').value = '';
     document.getElementById('categoria').value = '';
+    if (document.getElementById('data')) {
+      document.getElementById('data').value = new Date().toISOString().split('T')[0];
+    }
 
     await carregarTudo();
   } catch {
@@ -82,3 +90,10 @@ function renderHistorico(transacoes) {
     </div>
   `).join('');
 }
+
+window.addEventListener('load', () => {
+  const dataInput = document.getElementById('data');
+  if (dataInput) {
+    dataInput.value = new Date().toISOString().split('T')[0];
+  }
+});

@@ -25,13 +25,20 @@ class TransacaoRepositoryImpl(TransacaoRepository):
         transacao.id = model.id
         return transacao
 
-    def listar(self) -> list[Transacao]:
-        models = (
-            self.db.query(TransacaoModel)
-            .filter(TransacaoModel.usuario_id == self.usuario_id)
-            .order_by(TransacaoModel.data.desc())
-            .all()
-        )
+    def listar(self, mes: int = None, ano: int = None) -> list[Transacao]:
+        query = self.db.query(TransacaoModel).filter(TransacaoModel.usuario_id == self.usuario_id)
+        if ano is not None and mes is not None:
+            import calendar
+            from datetime import date
+            _, last_day = calendar.monthrange(ano, mes)
+            query = query.filter(TransacaoModel.data >= date(ano, mes, 1))
+            query = query.filter(TransacaoModel.data <= date(ano, mes, last_day))
+        elif ano is not None:
+            from datetime import date
+            query = query.filter(TransacaoModel.data >= date(ano, 1, 1))
+            query = query.filter(TransacaoModel.data <= date(ano, 12, 31))
+
+        models = query.order_by(TransacaoModel.data.desc()).all()
         return [
             Transacao(
                 id=m.id,

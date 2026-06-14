@@ -67,3 +67,58 @@ def test_multiplas_transacoes(db):
     db.commit()
 
     assert db.query(TransacaoModel).count() == 3
+
+
+def test_filtrar_por_periodo(db):
+    from backend.app.infrastructure.repositories.transacao_repository_impl import TransacaoRepositoryImpl
+    from backend.app.domain.entities.transacao import Transacao
+    from datetime import date
+
+    uid = _criar_usuario(db)
+    repo = TransacaoRepositoryImpl(db, uid)
+
+    repo.salvar(Transacao(tipo="receita", valor=100.0, categoria="Freelance", data=date(2026, 5, 15)))
+    repo.salvar(Transacao(tipo="despesa", valor=50.0, categoria="Alimentação", data=date(2026, 6, 1)))
+    repo.salvar(Transacao(tipo="despesa", valor=30.0, categoria="Transporte", data=date(2026, 6, 20)))
+
+    assert len(repo.listar()) == 3
+
+    junho = repo.listar(mes=6, ano=2026)
+    assert len(junho) == 2
+    assert junho[0].categoria in ("Alimentação", "Transporte")
+
+    maio = repo.listar(mes=5, ano=2026)
+    assert len(maio) == 1
+    assert maio[0].categoria == "Freelance"
+
+    ano_2026 = repo.listar(ano=2026)
+    assert len(ano_2026) == 3
+
+
+def test_evolucao_mensal(db):
+    from backend.app.presentation.controllers.transacao_controller import TransacaoController
+    from backend.app.infrastructure.repositories.transacao_repository_impl import TransacaoRepositoryImpl
+    from backend.app.domain.entities.transacao import Transacao
+    from datetime import date
+
+    uid = _criar_usuario(db)
+    repo = TransacaoRepositoryImpl(db, uid)
+
+    repo.salvar(Transacao(tipo="receita", valor=2000.0, categoria="Salário", data=date(2026, 5, 1)))
+    repo.salvar(Transacao(tipo="despesa", valor=500.0, categoria="Lazer", data=date(2026, 5, 10)))
+    repo.salvar(Transacao(tipo="receita", valor=3000.0, categoria="Salário", data=date(2026, 6, 1)))
+    repo.salvar(Transacao(tipo="despesa", valor=1200.0, categoria="Alimentação", data=date(2026, 6, 15)))
+
+    controller = TransacaoController(db, uid)
+    evolucao = controller.evolucao()
+
+    assert len(evolucao) == 2
+    assert evolucao[0]["mes_nome"] == "Mai/26"
+    assert evolucao[0]["receitas"] == 2000.0
+    assert evolucao[0]["despesas"] == 500.0
+    assert evolucao[0]["saldo"] == 1500.0
+
+    assert evolucao[1]["mes_nome"] == "Jun/26"
+    assert evolucao[1]["receitas"] == 3000.0
+    assert evolucao[1]["despesas"] == 1200.0
+    assert evolucao[1]["saldo"] == 1800.0

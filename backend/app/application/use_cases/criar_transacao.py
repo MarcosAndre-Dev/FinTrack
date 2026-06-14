@@ -1,6 +1,7 @@
 from backend.app.domain.entities.transacao import Transacao
 from backend.app.domain.repositories.transacao_repository import TransacaoRepository
 from backend.app.application.dtos.transacao_dto import TransacaoCreateDTO
+from datetime import date
 
 class CriarTransacao:
     def __init__(self, repository: TransacaoRepository):
@@ -12,6 +13,7 @@ class CriarTransacao:
             valor=dto.valor,
             categoria=dto.categoria,
             descricao=dto.descricao,
+            data=dto.data if dto.data else date.today(),
         )
         transacao.validar()
         return self.repository.salvar(transacao)

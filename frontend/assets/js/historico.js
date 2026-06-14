@@ -81,16 +81,43 @@ function renderizar(lista) {
   `).join('');
 }
 
+let filtroMes = null;
+let filtroAno = null;
+
 async function carregar() {
   try {
-    const res = await apiFetch('/transacoes/');
+    let url = '/transacoes/';
+    const params = [];
+    if (filtroMes) params.push(`mes=${filtroMes}`);
+    if (filtroAno) params.push(`ano=${filtroAno}`);
+    if (params.length) url += '?' + params.join('&');
+
+    const res = await apiFetch(url);
     if (!res) return;
     const data = await res.json();
     todasTransacoes = data.transacoes || [];
-    renderizar(todasTransacoes);
+    
+    const activeBtn = document.querySelector('.filtros .filtro-btn.active, .filtros .filtro-btn.active-despesa');
+    if (activeBtn) {
+      const text = activeBtn.textContent.toLowerCase();
+      let tipo = 'todos';
+      if (text.includes('receita')) tipo = 'receita';
+      else if (text.includes('despesa')) tipo = 'despesa';
+      filtrar(tipo, activeBtn);
+    } else {
+      renderizar(todasTransacoes);
+    }
   } catch {
     toast('Não foi possível conectar à API.', true);
   }
+}
+
+async function limparFiltroPeriodo() {
+  const el = document.getElementById('filtro-mes-ano');
+  if (el) el.value = '';
+  filtroMes = null;
+  filtroAno = null;
+  await carregar();
 }
 
 const modalOverlay = document.getElementById('modal-overlay');
@@ -103,3 +130,21 @@ if (modalOverlay) {
 if (document.getElementById('tx-list')) {
   carregar();
 }
+
+window.addEventListener('load', () => {
+  const inputMesAno = document.getElementById('filtro-mes-ano');
+  if (inputMesAno) {
+    inputMesAno.addEventListener('change', async (e) => {
+      const val = e.target.value;
+      if (val) {
+        const [ano, mes] = val.split('-');
+        filtroMes = parseInt(mes);
+        filtroAno = parseInt(ano);
+      } else {
+        filtroMes = null;
+        filtroAno = null;
+      }
+      await carregar();
+    });
+  }
+});
