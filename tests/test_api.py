@@ -199,12 +199,12 @@ def test_cotacao_falha_api_externa():
 
 def test_conselho_sem_autenticacao():
     res = client.get("/conselhos/")
-    assert res.status_code == 403
+    assert res.status_code == 401
 
 
 def test_historico_sem_autenticacao():
     res = client.get("/conselhos/historico")
-    assert res.status_code == 403
+    assert res.status_code == 401
 
 
 @patch("backend.app.infrastructure.services.geminiService.Groq")
