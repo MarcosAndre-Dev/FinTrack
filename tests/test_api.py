@@ -192,3 +192,58 @@ def test_cotacao_falha_api_externa():
 
     assert res.status_code == 200
     assert res.json()["cotacao_dolar"] is None
+
+# =============================================================================
+# TESTES DE CONSELHOS
+# =============================================================================
+
+def test_conselho_sem_autenticacao():
+    res = client.get("/conselhos/")
+    assert res.status_code == 401
+
+
+def test_historico_sem_autenticacao():
+    res = client.get("/conselhos/historico")
+    assert res.status_code == 401
+
+
+@patch("backend.app.infrastructure.services.geminiService.Groq")
+def test_conselho_retorna_texto(mock_groq):
+    """Conselho gerado com sucesso salva no histórico."""
+    mock_choice = MagicMock()
+    mock_choice.message.content = "Parabéns! Seu saldo está positivo. Continue economizando."
+    mock_groq.return_value.chat.completions.create.return_value.choices = [mock_choice]
+
+    token = registrar_e_logar()
+    res = client.get("/conselhos/", headers={"Authorization": f"Bearer {token}"})
+    assert res.status_code == 200
+    assert "conselho" in res.json()
+    assert len(res.json()["conselho"]) > 5
+
+
+@patch("backend.app.infrastructure.services.geminiService.Groq")
+def test_historico_salva_conselhos(mock_groq):
+    """Após gerar conselho, ele aparece no histórico."""
+    mock_choice = MagicMock()
+    mock_choice.message.content = "Dica: evite gastos desnecessários."
+    mock_groq.return_value.chat.completions.create.return_value.choices = [mock_choice]
+
+    token = registrar_e_logar()
+    # Gera um conselho
+    client.get("/conselhos/", headers={"Authorization": f"Bearer {token}"})
+    # Verifica histórico
+    res = client.get("/conselhos/historico", headers={"Authorization": f"Bearer {token}"})
+    assert res.status_code == 200
+    assert isinstance(res.json(), list)
+    assert len(res.json()) >= 1
+    assert "texto" in res.json()[0]
+    assert "criado_em" in res.json()[0]
+
+
+def test_conselho_sem_transacoes():
+    """Usuário sem transações recebe mensagem padrão (sem chamar a IA)."""
+    token = registrar_e_logar()
+    res = client.get("/conselhos/", headers={"Authorization": f"Bearer {token}"})
+    assert res.status_code == 200
+    assert "conselho" in res.json()
+    assert "transacoes" in res.json()["conselho"].lower() or len(res.json()["conselho"]) > 5

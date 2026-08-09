@@ -1,5 +1,7 @@
 __pycache__/
-venv/
+*.py[cod]
 .venv/
+venv/
 .env
+build/
 dist/

@@ -59,6 +59,7 @@
     <div class="header-nav">
       <button class="nav-btn active" id="btn-nav-dashboard" onclick="navegarPara('dashboard')">Dashboard</button>
       <button class="nav-btn" id="btn-nav-historico" onclick="navegarPara('historico')">Histórico</button>
+      <button class="nav-btn" id="btn-nav-conselhos" onclick="navegarPara('conselhos')">Conselhos IA</button>
     </div>
   </div>
 
@@ -255,17 +256,135 @@
   function navegarPara(telaId) {
     document.getElementById('tela-dashboard').style.display = 'none';
     document.getElementById('tela-historico').style.display = 'none';
+    document.getElementById('tela-conselhos').style.display = 'none';
     document.getElementById('btn-nav-dashboard').classList.remove('active');
     document.getElementById('btn-nav-historico').classList.remove('active');
+    document.getElementById('btn-nav-conselhos').classList.remove('active');
 
     document.getElementById('tela-' + telaId).style.display = 'block';
     document.getElementById('btn-nav-' + telaId).classList.add('active');
 
     if (telaId === 'dashboard' && typeof carregarTudo === 'function') carregarTudo();
     if (telaId === 'historico' && typeof carregar === 'function') carregar();
+    if (telaId === 'conselhos' && typeof carregarTelaConselhos === 'function') carregarTelaConselhos();
   }
 
   window.onload = () => navegarPara('dashboard');
+</script>
+
+<!-- TELA CONSELHOS IA -->
+<div id="tela-conselhos" style="display: none;">
+  <div style="max-width: 860px; margin: 0 auto; padding: 40px 24px;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; letter-spacing:-1px; color:var(--text);">
+        Conselhos <span style="color:var(--accent);">IA</span>
+      </div>
+      <button id="btn-gerar-conselho" onclick="gerarNovoConselho()"
+        style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:12px 22px;
+               font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;
+               display:flex;align-items:center;gap:8px;transition:opacity .2s;">
+        🤖 Gerar Novo Conselho
+      </button>
+    </div>
+
+    <!-- Conselho atual -->
+    <div id="conselho-atual-box" style="display:none; background:var(--card);border:1px solid var(--accent);
+         border-radius:14px;padding:24px 28px;margin-bottom:28px;position:relative;">
+      <div style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-weight:700;">
+        ✨ Conselho Gerado Agora
+      </div>
+      <div id="conselho-atual-texto" style="line-height:1.7;color:var(--text);font-size:0.9rem;white-space:pre-wrap;"></div>
+    </div>
+
+    <!-- Loading -->
+    <div id="conselho-loading" style="display:none; text-align:center; padding:40px 0;">
+      <div style="font-size:2rem;margin-bottom:12px;">🤖</div>
+      <div style="color:var(--muted);font-size:0.85rem;">Analisando suas finanças...</div>
+    </div>
+
+    <!-- Histórico -->
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--muted);
+         letter-spacing:0.5px;margin-bottom:16px;text-transform:uppercase;font-size:0.75rem;">
+      Histórico de Conselhos
+    </div>
+    <div id="historico-conselhos-lista">
+      <div style="color:var(--muted);font-size:0.85rem;padding:20px 0;">Carregando histórico...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatarDataConselho(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  }
+
+  async function carregarHistoricoConselhos() {
+    const lista = document.getElementById('historico-conselhos-lista');
+    try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('ft_token');
+      const res = await fetch('/conselhos/historico', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (!data.length) {
+        lista.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:20px 0;">Nenhum conselho gerado ainda. Clique em "Gerar Novo Conselho" para começar!</div>';
+        return;
+      }
+
+      lista.innerHTML = data.map((c, i) => `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;
+             padding:20px 24px;margin-bottom:14px;transition:border-color .2s;"
+             onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:0.72rem;letter-spacing:1px;color:var(--accent);font-weight:700;text-transform:uppercase;">
+              #${data.length - i} · ${formatarDataConselho(c.criado_em)}
+            </div>
+          </div>
+          <div style="color:var(--text);font-size:0.88rem;line-height:1.7;white-space:pre-wrap;">${c.texto}</div>
+        </div>
+      `).join('');
+    } catch (e) {
+      lista.innerHTML = '<div style="color:var(--accent2);font-size:0.85rem;">Erro ao carregar histórico.</div>';
+    }
+  }
+
+  async function gerarNovoConselho() {
+    const btn = document.getElementById('btn-gerar-conselho');
+    const loading = document.getElementById('conselho-loading');
+    const atualBox = document.getElementById('conselho-atual-box');
+    const atualTexto = document.getElementById('conselho-atual-texto');
+
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    loading.style.display = 'block';
+    atualBox.style.display = 'none';
+
+    try {
+      const token = sessionStorage.getItem('token') || localStorage.getItem('ft_token');
+      const res = await fetch('/conselhos/', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      atualTexto.textContent = data.conselho;
+      atualBox.style.display = 'block';
+      await carregarHistoricoConselhos();
+    } catch (e) {
+      atualTexto.textContent = 'Não foi possível gerar o conselho. Tente novamente.';
+      atualBox.style.display = 'block';
+    } finally {
+      loading.style.display = 'none';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  function carregarTelaConselhos() {
+    carregarHistoricoConselhos();
+  }
 </script>
 
 </body>
