@@ -1,0 +1,155 @@
+/* ============================================================
+   RESPONSIVE.CSS
+   Ajustes de responsividade para telas menores (tablet/celular).
+   Este arquivo NÃO altera nenhum CSS/JS/HTML existente — ele só
+   é carregado DEPOIS dos outros, então sobrescreve apenas o que
+   precisa mudar em telas pequenas (media queries). O layout de
+   desktop continua exatamente igual.
+   ============================================================ */
+
+/* Trava de segurança: nunca deixa rolar na horizontal */
+html, body { overflow-x: hidden; }
+
+/* ---------- Header (app.html, index.html, historico embutido, sobre.html) ---------- */
+@media (max-width: 720px) {
+  header {
+    flex-wrap: wrap;
+    padding: 14px 16px !important;
+    row-gap: 10px;
+  }
+
+  .logo { font-size: 1.2rem; }
+  .tagline { display: none; }
+
+  .header-nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .nav-btn { font-size: 0.85rem; }
+
+  .header-user {
+    gap: 8px;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    border-left: none !important;
+  }
+
+  .user-greeting,
+  .header-user-nome { display: none; }
+
+  .btn-logout {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+
+  .auth-btns { gap: 8px; }
+  .btn-outline, .btn-accent {
+    padding: 8px 12px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo { font-size: 1.05rem; }
+}
+
+/* ---------- Wrapper / grid do dashboard ---------- */
+@media (max-width: 600px) {
+  .wrapper {
+    padding: 20px 14px 0 !important;
+    gap: 16px !important;
+  }
+
+  .page-wrapper {
+    padding: 24px 14px 60px !important;
+  }
+
+  .page-title { font-size: 1.5rem !important; }
+
+  .card { padding: 18px !important; }
+}
+
+/* ---------- Saldo banner (Receitas / Despesas / Saldo) ---------- */
+@media (max-width: 560px) {
+  .saldo-banner {
+    flex-direction: column;
+    padding: 18px 20px;
+    gap: 0;
+  }
+  .saldo-item {
+    padding: 12px 0 !important;
+    border-right: none !important;
+    border-bottom: 1px solid #1e3028;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .saldo-item:last-child { border-bottom: none; }
+  .saldo-label { margin-bottom: 0; }
+  .saldo-value { font-size: 1.4rem; }
+}
+
+/* ---------- Filtro de período (input mês/ano + botão Limpar) ---------- */
+/* Esses grupos usam estilo inline no HTML; :has() localiza o container
+   sem precisar mexer no HTML e o !important sobrescreve o style inline. */
+@media (max-width: 480px) {
+  div:has(> #dashboard-filtro-mes-ano),
+  div:has(> #filtro-mes-ano) {
+    flex-wrap: wrap !important;
+    width: 100%;
+  }
+
+  #dashboard-filtro-mes-ano,
+  #filtro-mes-ano {
+    width: 100% !important;
+    flex: 1 1 140px;
+  }
+
+  .filtros {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  .filtros > div { width: 100%; }
+  .filtro-btn { flex: 1; text-align: center; }
+}
+
+/* ---------- Formulário de transação ---------- */
+@media (max-width: 600px) {
+  .tipo-tab { font-size: 0.72rem; padding: 9px 4px; }
+  .btn-submit { font-size: 0.82rem; padding: 13px; }
+}
+
+/* ---------- Gráficos ---------- */
+@media (max-width: 480px) {
+  .chart-box { padding: 14px; }
+}
+
+/* ---------- Lista de transações (dashboard e histórico) ---------- */
+@media (max-width: 480px) {
+  .tx-item {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .tx-desc { font-size: 0.8rem; }
+  .tx-meta { flex-wrap: wrap; gap: 6px; }
+  .tx-valor { font-size: 0.82rem; }
+}
+
+/* ---------- Modal de confirmação ---------- */
+@media (max-width: 480px) {
+  .modal { padding: 22px; }
+  .modal-actions { flex-direction: column; }
+}
+
+/* ---------- Login / Registro ---------- */
+@media (max-width: 420px) {
+  .auth-container { padding: 12px; gap: 20px; }
+  .auth-card { padding: 20px; }
+  .auth-title { font-size: 1.35rem; }
+  .logo { font-size: 1.7rem; }
+}

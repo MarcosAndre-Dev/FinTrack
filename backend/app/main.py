@@ -8,6 +8,14 @@ from backend.app.infrastructure.database import models
 from backend.app.presentation.routes.transacao_routes import router
 from backend.app.presentation.routes.auth_routes import router as auth_router
 from backend.app.presentation.routes.conselho_routes import router as conselho_router
+import sys
+
+def resource_path(relative_path):
+    if hasattr(sys, "_MEIPASS"):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    return os.path.join(base_path, relative_path)
 
 app = FastAPI()
 
@@ -25,17 +33,15 @@ app.add_middleware(
 app.include_router(router)
 app.include_router(auth_router)
 app.include_router(conselho_router)
-app.mount("/frontend", StaticFiles(directory="frontend"), name="static")
-
+app.mount("/frontend", StaticFiles(directory=resource_path("frontend")), name="static")
 
 @app.get("/")
 def serve_frontend():
-    return FileResponse("frontend/pages/index.html")
-
+    return FileResponse(resource_path("frontend/pages/index.html"))
 
 @app.get("/app")
 def serve_app_html():
-    return FileResponse("frontend/pages/app.html")
+    return FileResponse(resource_path("frontend/pages/app.html"))
 
 
 if __name__ == "__main__":
