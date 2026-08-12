@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-f-bg: #0B0C0F;
+  --color-f-surface: #13151A;
+  --color-f-card: #1A1D24;
+  --color-f-border: #2A2D36;
+  --color-f-green: #00E5A0;
+  --color-f-red: #FF6B6B;
+  --color-f-yellow: #FFD166;
+  --color-f-text: #E8EAF0;
+  --color-f-muted: #7A7F94;
+}
+
+@layer base {
+  body {
+    @apply bg-f-bg text-f-text font-mono antialiased min-h-screen;
+  }
+}
