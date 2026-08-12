@@ -4,26 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FinTrack - Controle Financeiro</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="/frontend/assets/css/global.css">
-  <link rel="stylesheet" href="/frontend/assets/css/dashboard.css">
-  <link rel="stylesheet" href="/frontend/assets/css/transacoes.css">
-  <link rel="stylesheet" href="/frontend/assets/css/historico.css">
-  
+
+  <!-- CSS -->
+<link rel="stylesheet" href="./assets/css/global.css">
+<link rel="stylesheet" href="./assets/css/dashboard.css">
+<link rel="stylesheet" href="./assets/css/transacoes.css">
+<link rel="stylesheet" href="./assets/css/historico.css">
+<link rel="stylesheet" href="./assets/css/responsive.css">
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <style>
     .nav-btn {
-      background: none; border: none; color: var(--muted); cursor: pointer;
-      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
       transition: color 0.2s;
     }
-    .nav-btn:hover, .nav-btn.active { color: var(--text); }
-    .header-nav { display: flex; gap: 20px; align-items: center; }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: var(--text);
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
 
     .header-user {
       display: flex;
@@ -33,6 +50,7 @@
       padding-left: 20px;
       border-left: 1px solid var(--border);
     }
+
     .header-user-nome {
       font-size: 0.8rem;
       color: var(--muted);
@@ -41,6 +59,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .btn-logout {
       background: transparent;
       border: 1px solid var(--border);
@@ -55,228 +74,715 @@
       align-items: center;
       gap: 6px;
     }
+
     .btn-logout:hover {
       border-color: var(--accent2);
       color: var(--accent2);
     }
+
     .btn-logout svg {
       width: 14px;
       height: 14px;
       stroke: currentColor;
     }
   </style>
-  <link rel="stylesheet" href="/frontend/assets/css/responsive.css">
 </head>
+
 <body>
 
 <header style="justify-content: space-between;">
   <div class="header-left">
     <div class="logo">Fin<span>Track</span></div>
   </div>
+
   <div class="header-nav">
-    <button class="nav-btn active" id="btn-nav-dashboard" onclick="navegarPara('dashboard')">Dashboard</button>
-    <button class="nav-btn" id="btn-nav-historico" onclick="navegarPara('historico')">Histórico</button>
+    <button
+      class="nav-btn active"
+      id="btn-nav-dashboard"
+      onclick="navegarPara('dashboard')">
+      Dashboard
+    </button>
+
+    <button
+      class="nav-btn"
+      id="btn-nav-historico"
+      onclick="navegarPara('historico')">
+      Histórico
+    </button>
 
     <div class="header-user">
       <span class="header-user-nome" id="usuario-nome"></span>
+
       <button class="btn-logout" onclick="logout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
+
         Sair
       </button>
     </div>
   </div>
 </header>
 
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
 <div id="tela-dashboard" style="display: block;">
+
   <div class="wrapper">
-    <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: -10px; flex-wrap: wrap; gap: 16px;">
-      <div style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; letter-spacing: -1px; color: var(--text);">Dashboard <span style="color: var(--accent);">·</span></div>
+
+    <div
+      style="
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: -10px;
+        flex-wrap: wrap;
+        gap: 16px;
+      "
+    >
+
+      <div
+        style="
+          font-family: 'Syne', sans-serif;
+          font-weight: 800;
+          font-size: 1.8rem;
+          letter-spacing: -1px;
+          color: var(--text);
+        "
+      >
+        Dashboard <span style="color: var(--accent);">·</span>
+      </div>
+
       <div style="display: flex; align-items: center; gap: 8px;">
-        <label style="margin: 0; white-space: nowrap; font-size: 0.72rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase;">Período:</label>
-        <input type="month" id="dashboard-filtro-mes-ano" style="padding: 8px 12px; border-radius: 8px; width: 160px; font-size: 0.8rem; border: 1px solid var(--border); background: var(--surface); color: var(--text);">
-        <button class="filtro-btn" id="btn-limpar-dashboard" onclick="limparFiltroDashboard()" style="padding: 8px 14px; margin: 0; background: var(--surface); border: 1px solid var(--border); color: var(--muted); cursor: pointer; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.75rem;">Limpar</button>
+
+        <label
+          style="
+            margin: 0;
+            white-space: nowrap;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            color: var(--muted);
+            text-transform: uppercase;
+          "
+        >
+          Período:
+        </label>
+
+        <input
+          type="month"
+          id="dashboard-filtro-mes-ano"
+          style="
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: 160px;
+            font-size: 0.8rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+          "
+        >
+
+        <button
+          class="filtro-btn"
+          id="btn-limpar-dashboard"
+          onclick="limparFiltroDashboard()"
+          style="
+            padding: 8px 14px;
+            margin: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+          "
+        >
+          Limpar
+        </button>
+
       </div>
     </div>
+
+
+    <!-- SALDOS -->
 
     <div class="saldo-banner">
+
       <div class="saldo-item">
         <div class="saldo-label">Receitas</div>
-        <div class="saldo-value green" id="total-receitas">R$ 0,00</div>
+        <div class="saldo-value green" id="total-receitas">
+          R$ 0,00
+        </div>
       </div>
+
       <div class="saldo-item">
         <div class="saldo-label">Despesas</div>
-        <div class="saldo-value red" id="total-despesas">R$ 0,00</div>
+        <div class="saldo-value red" id="total-despesas">
+          R$ 0,00
+        </div>
       </div>
+
       <div class="saldo-item">
         <div class="saldo-label">Saldo</div>
-        <div class="saldo-value white" id="total-saldo">R$ 0,00</div>
+        <div class="saldo-value white" id="total-saldo">
+          R$ 0,00
+        </div>
       </div>
+
     </div>
 
+
+    <!-- FORMULÁRIO -->
+
     <div class="form-section">
+
       <div class="card">
+
         <div class="tipo-tabs">
-          <button class="tipo-tab active-receita" id="tab-receita" onclick="setTipo('receita')">Receita</button>
-          <button class="tipo-tab" id="tab-despesa" onclick="setTipo('despesa')">Despesa</button>
+
+          <button
+            class="tipo-tab active-receita"
+            id="tab-receita"
+            onclick="setTipo('receita')"
+          >
+            Receita
+          </button>
+
+          <button
+            class="tipo-tab"
+            id="tab-despesa"
+            onclick="setTipo('despesa')"
+          >
+            Despesa
+          </button>
+
         </div>
+
+
         <div class="input-group">
           <label>Valor</label>
-          <input type="number" id="valor" placeholder="0.00" step="0.01">
+          <input
+            type="number"
+            id="valor"
+            placeholder="0.00"
+            step="0.01"
+          >
         </div>
+
+
         <div class="input-group">
           <label>Descrição</label>
-          <input type="text" id="descricao" placeholder="Ex: Salário, Mercado...">
+          <input
+            type="text"
+            id="descricao"
+            placeholder="Ex: Salário, Mercado..."
+          >
         </div>
+
+
         <div class="input-group">
           <label>Data</label>
           <input type="date" id="data">
         </div>
+
+
         <div class="input-group">
+
           <label>Categoria</label>
+
           <select id="categoria">
-            <option value="" disabled selected>Selecione</option>
+
+            <option value="" disabled selected>
+              Selecione
+            </option>
+
             <optgroup label="Receitas">
-              <option value="salario">Salário</option>
-              <option value="freelance">Freelance</option>
-              <option value="investimentos">Investimentos</option>
-              <option value="outros">Outros</option>
+
+              <option value="salario">
+                Salário
+              </option>
+
+              <option value="freelance">
+                Freelance
+              </option>
+
+              <option value="investimentos">
+                Investimentos
+              </option>
+
+              <option value="outros">
+                Outros
+              </option>
+
             </optgroup>
-            <optgroup label="Despesas" style="display:none;">
-              <option value="moradia" disabled>Moradia</option>
-              <option value="alimentacao" disabled>Alimentação</option>
-              <option value="transporte" disabled>Transporte</option>
-              <option value="saude" disabled>Saúde</option>
-              <option value="lazer" disabled>Lazer</option>
-              <option value="educacao" disabled>Educação</option>
-              <option value="outros_gastos" disabled>Outros</option>
+
+
+            <optgroup label="Despesas" style="display: none;">
+
+              <option value="moradia" disabled>
+                Moradia
+              </option>
+
+              <option value="alimentacao" disabled>
+                Alimentação
+              </option>
+
+              <option value="transporte" disabled>
+                Transporte
+              </option>
+
+              <option value="saude" disabled>
+                Saúde
+              </option>
+
+              <option value="lazer" disabled>
+                Lazer
+              </option>
+
+              <option value="educacao" disabled>
+                Educação
+              </option>
+
+              <option value="outros_gastos" disabled>
+                Outros
+              </option>
+
             </optgroup>
+
           </select>
+
         </div>
-        <button class="btn-submit" id="btn-submit" onclick="salvarTransacao()">+ Adicionar Receita</button>
+
+
+        <button
+          class="btn-submit"
+          id="btn-submit"
+          onclick="salvarTransacao()"
+        >
+          + Adicionar Receita
+        </button>
+
       </div>
 
-      <div class="historico-wrap" style="margin-top:20px;">
-        <div class="card-title">Histórico Recente</div>
-        <button class="btn-submit" onclick="navegarPara('historico')" style="text-decoration:none; display:block; text-align:center; margin-top:0;">
+
+      <div
+        class="historico-wrap"
+        style="margin-top:20px;"
+      >
+
+        <div class="card-title">
+          Histórico Recente
+        </div>
+
+        <button
+          class="btn-submit"
+          onclick="navegarPara('historico')"
+          style="
+            text-decoration:none;
+            display:block;
+            text-align:center;
+            margin-top:0;
+          "
+        >
           Ver Histórico Completo →
         </button>
+
       </div>
+
     </div>
+
+
+    <!-- RELATÓRIO -->
 
     <div class="relatorio">
+
       <div class="card">
-        <div class="card-title">Relatório Financeiro</div>
-        <div id="dica-box" style="display:none;" class="dica-box">
-          <span class="dica-icon">💡</span><span id="dica-text"></span>
+
+        <div class="card-title">
+          Relatório Financeiro
         </div>
+
+
+        <div
+          id="dica-box"
+          style="display:none;"
+          class="dica-box"
+        >
+          <span class="dica-icon">💡</span>
+          <span id="dica-text"></span>
+        </div>
+
+
         <div class="charts-row">
+
           <div class="chart-box">
-            <div class="chart-box-title">Gastos por Categoria</div>
-            <canvas id="chartPizza" height="200"></canvas>
+
+            <div class="chart-box-title">
+              Gastos por Categoria
+            </div>
+
+            <canvas
+              id="chartPizza"
+              height="200"
+            ></canvas>
+
           </div>
+
+
           <div class="chart-box">
-            <div class="chart-box-title">Receita vs Despesa</div>
-            <canvas id="chartBarras" height="200"></canvas>
+
+            <div class="chart-box-title">
+              Receita vs Despesa
+            </div>
+
+            <canvas
+              id="chartBarras"
+              height="200"
+            ></canvas>
+
           </div>
+
         </div>
 
-        <div class="chart-box" style="margin-bottom: 24px;">
-          <div class="chart-box-title">Evolução Mensal (Comparativo)</div>
-          <canvas id="chartEvolucao" height="100"></canvas>
+
+        <div
+          class="chart-box"
+          style="margin-bottom: 24px;"
+        >
+
+          <div class="chart-box-title">
+            Evolução Mensal (Comparativo)
+          </div>
+
+          <canvas
+            id="chartEvolucao"
+            height="100"
+          ></canvas>
+
         </div>
 
-        <div class="card-title" style="margin-top:4px;">Top Categorias de Gasto</div>
-        <div class="cat-list" id="cat-list">
-          <div class="empty-state">Sem dados ainda.</div>
+
+        <div
+          class="card-title"
+          style="margin-top:4px;"
+        >
+          Top Categorias de Gasto
         </div>
+
+
+        <div
+          class="cat-list"
+          id="cat-list"
+        >
+
+          <div class="empty-state">
+            Sem dados ainda.
+          </div>
+
+        </div>
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
-<div id="tela-historico" style="display: none;">
+
+<!-- =========================
+     HISTÓRICO
+========================= -->
+
+<div
+  id="tela-historico"
+  style="display: none;"
+>
+
   <div class="page-wrapper">
+
     <div class="page-header">
+
       <div>
-        <div class="page-title">Histórico <span>·</span></div>
-        <div class="page-count" id="page-count">carregando...</div>
+
+        <div class="page-title">
+          Histórico <span>·</span>
+        </div>
+
+        <div
+          class="page-count"
+          id="page-count"
+        >
+          carregando...
+        </div>
+
       </div>
+
     </div>
 
-    <div class="filtros" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+
+    <div
+      class="filtros"
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 24px;
+      "
+    >
+
       <div style="display: flex; gap: 10px;">
-        <button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
-        <button class="filtro-btn" onclick="filtrar('receita', this)">↑ Receitas</button>
-        <button class="filtro-btn" onclick="filtrar('despesa', this)">↓ Despesas</button>
+
+        <button
+          class="filtro-btn active"
+          onclick="filtrar('todos', this)"
+        >
+          Todos
+        </button>
+
+        <button
+          class="filtro-btn"
+          onclick="filtrar('receita', this)"
+        >
+          ↑ Receitas
+        </button>
+
+        <button
+          class="filtro-btn"
+          onclick="filtrar('despesa', this)"
+        >
+          ↓ Despesas
+        </button>
+
       </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <label style="margin: 0; white-space: nowrap; font-size: 0.72rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase;">Mês/Ano:</label>
-        <input type="month" id="filtro-mes-ano" style="padding: 8px 12px; border-radius: 8px; width: 160px; font-size: 0.8rem; border: 1px solid var(--border); background: var(--surface); color: var(--text);">
-        <button class="filtro-btn" id="btn-limpar-filtro" onclick="limparFiltroPeriodo()" style="padding: 8px 14px; margin: 0; background: var(--surface); border: 1px solid var(--border); color: var(--muted); cursor: pointer; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.75rem;">Limpar</button>
+
+
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        "
+      >
+
+        <label
+          style="
+            margin: 0;
+            white-space: nowrap;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            color: var(--muted);
+            text-transform: uppercase;
+          "
+        >
+          Mês/Ano:
+        </label>
+
+        <input
+          type="month"
+          id="filtro-mes-ano"
+          style="
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: 160px;
+            font-size: 0.8rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+          "
+        >
+
+        <button
+          class="filtro-btn"
+          id="btn-limpar-filtro"
+          onclick="limparFiltroPeriodo()"
+          style="
+            padding: 8px 14px;
+            margin: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+          "
+        >
+          Limpar
+        </button>
+
       </div>
+
     </div>
 
-    <div class="tx-list" id="tx-list">
+
+    <div
+      class="tx-list"
+      id="tx-list"
+    >
+
       <div class="empty-state">
-        <span class="empty-icon">◎</span>
+
+        <span class="empty-icon">
+          ◎
+        </span>
+
         Carregando transações...
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
-<div class="modal-overlay" id="modal-overlay">
+
+<!-- =========================
+     MODAL
+========================= -->
+
+<div
+  class="modal-overlay"
+  id="modal-overlay"
+>
+
   <div class="modal">
+
     <div class="modal-icon">
+
       <svg viewBox="0 0 24 24">
+
         <polyline points="3 6 5 6 21 6"/>
+
         <path d="M19 6l-1 14H6L5 6"/>
+
         <path d="M10 11v6M14 11v6"/>
+
         <path d="M9 6V4h6v2"/>
+
       </svg>
+
     </div>
-    <div class="modal-title">Excluir transação</div>
-    <div class="modal-desc" id="modal-desc">Tem certeza?</div>
+
+
+    <div class="modal-title">
+      Excluir transação
+    </div>
+
+
+    <div
+      class="modal-desc"
+      id="modal-desc"
+    >
+      Tem certeza?
+    </div>
+
+
     <div class="modal-actions">
-      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
-      <button class="btn-confirmar" onclick="confirmarDelete()">Sim, excluir</button>
+
+      <button
+        class="btn-cancelar"
+        onclick="fecharModal()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="btn-confirmar"
+        onclick="confirmarDelete()"
+      >
+        Sim, excluir
+      </button>
+
     </div>
+
   </div>
+
 </div>
+
 
 <div id="toast"></div>
 
-<script src="/frontend/assets/js/api.js"></script>
-<script src="/frontend/assets/js/main.js"></script>
-<script src="/frontend/assets/js/resumo.js"></script>
-<script src="/frontend/assets/js/transacoes.js"></script>
-<script src="/frontend/assets/js/dashboard.js"></script>
-<script src="/frontend/assets/js/historico.js"></script>
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script src="./assets/js/api.js"></script>
+<script src="./assets/js/main.js"></script>
+<script src="./assets/js/resumo.js"></script>
+<script src="./assets/js/transacoes.js"></script>
+<script src="./assets/js/dashboard.js"></script>
+<script src="./assets/js/historico.js"></script>
+
 
 <script>
   function navegarPara(telaId) {
+
     document.getElementById('tela-dashboard').style.display = 'none';
     document.getElementById('tela-historico').style.display = 'none';
-    
-    document.getElementById('btn-nav-dashboard').classList.remove('active');
-    document.getElementById('btn-nav-historico').classList.remove('active');
 
-    document.getElementById('tela-' + telaId).style.display = 'block';
-    document.getElementById('btn-nav-' + telaId).classList.add('active');
+    document
+      .getElementById('btn-nav-dashboard')
+      .classList
+      .remove('active');
+
+    document
+      .getElementById('btn-nav-historico')
+      .classList
+      .remove('active');
+
+    document.getElementById(
+      'tela-' + telaId
+    ).style.display = 'block';
+
+    document
+      .getElementById('btn-nav-' + telaId)
+      .classList
+      .add('active');
+
 
     if (telaId === 'dashboard') {
-      if (typeof carregarTudo === 'function') carregarTudo();
+
+      if (
+        typeof carregarTudo === 'function'
+      ) {
+        carregarTudo();
+      }
+
     } else if (telaId === 'historico') {
-      if (typeof carregar === 'function') carregar();
+
+      if (
+        typeof carregar === 'function'
+      ) {
+        carregar();
+      }
+
     }
+
   }
 
+
   window.onload = () => {
+
     navegarPara('dashboard');
+
   };
 </script>
 
